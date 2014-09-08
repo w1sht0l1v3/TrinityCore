@@ -916,7 +916,7 @@ void IRCCmd::Player_Player(_CDATA *CD)
         plguid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0].c_str());
     if (plguid > 0)
     {
-        QueryResult result = CharacterDatabase.PQuery("SELECT guid, account, name, race, class, online, SUBSTRING_INDEX(SUBSTRING_INDEX(`level`, ' ' , 35), ' ' , -1) AS level,  SUBSTRING_INDEX(SUBSTRING_INDEX(`xp`, ' ' , 927), ' ' , -1) AS xp, SUBSTRING_INDEX(SUBSTRING_INDEX(money, ' ' , 1462), ' ' , -1) AS gold, SUBSTRING_INDEX(SUBSTRING_INDEX(`totalHonorPoints`, ' ' , 1454), ' ' , -1) AS Honor, totaltime FROM characters WHERE guid =%i", plguid);
+        QueryResult result = CharacterDatabase.PQuery("SELECT guid, account, name, race, class, online, level,  xp, money, totalHonorPoints, totaltime FROM characters WHERE guid =%i", plguid);
         uint32 latency = 0;
         Player *chr = ObjectAccessor::FindPlayer(plguid);
         if (chr)
@@ -949,9 +949,6 @@ void IRCCmd::Player_Player(_CDATA *CD)
                 pgmlvl = fields2[0].GetString();
             }
 
-            ChrRacesEntry const* prace = sChrRacesStore.LookupEntry(praceid);
-            ChrClassesEntry const* pclass = sChrClassesStore.LookupEntry(pclassid);
-
             if (uint32(atoi(plevel.c_str())) < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
                 plevel += " (" + pxp + ")";
             unsigned int gold = money / 10000;
@@ -974,7 +971,7 @@ void IRCCmd::Player_Player(_CDATA *CD)
                 }
             }
             std::string pinfo  = "\00310About Player: \xF"+pname+" |\00310 GM Level: \xF"+pgmlvl+" |\00310 AcctID: \xF"+pacct+" |\00310 CharID: \xF"+pguid+" |\00310 Played Time: \xF"+totaltim.c_str()+" |\00310 Latency: \xF"+templatency;
-            std::string pinfo2 = "\00310Race: \xF"+(std::string)prace->name[sWorld->GetDefaultDbcLocale()]+" |\00310 Class: \xF"+(std::string)pclass->name[sWorld->GetDefaultDbcLocale()]+" |\00310 Level: \xF"+plevel+" |\00310 Money: \xF"+tempgold+"|\00310 Status: \xF"+ponline+" |\00310 Honor: \xF"+honor;
+            std::string pinfo2 = "\00310Race: \xF"+(std::string)GetRaceName(praceid, 0)+" |\00310 Class: \xF" + (std::string)GetClassName(pclassid, 0)+" |\00310 Level: \xF"+plevel+" |\00310 Money: \xF"+tempgold+"|\00310 Status: \xF"+ponline+" |\00310 Honor: \xF"+honor;
             // pinfo3 = " :" + " \x2Honor Kills:\x2\x3\x31\x30 " + hk;
             Send_IRCA(ChanOrPM(CD),pinfo , true, CD->TYPE);
             Send_IRCA(ChanOrPM(CD),pinfo2 , true, CD->TYPE);
@@ -1558,12 +1555,6 @@ void IRCCmd::Level_Player(_CDATA *CD)
         Player *chr = ObjectAccessor::FindPlayer(guid);
         uint64 level = 1;
         int32 i_oldlvl = chr ? chr->getLevel() : Player::GetLevelFromDB(level);
-        Player* plTarget = chr;
-        if (!plTarget)
-        {
-            Send_IRCA(CD->USER, ""+_PARAMS[0]+" Is Not Online!", true, "ERROR");
-            return;
-        }
 
         if (chr)
         {
@@ -1571,7 +1562,7 @@ void IRCCmd::Level_Player(_CDATA *CD)
             chr->InitTalentForLevel();
             chr->SetUInt32Value(PLAYER_XP,0);
             WorldPacket data;
-                        std::stringstream ss;
+            std::stringstream ss;
             ChatHandler CH(chr->GetSession());
             if (i_oldlvl == i_newlvl)
                 //CH.FillSystemMessageData(&data, "Your level progress has been reset.");
@@ -1593,9 +1584,8 @@ void IRCCmd::Level_Player(_CDATA *CD)
         }
         else
         {
-            Player::GetLevelFromDB(guid);
-            uint64 player_guid;
-            CharacterDatabase.PExecute("UPDATE characters SET level = '%u', xp = 0 WHERE guid = '%u'", i_newlvl, GUID_LOPART(player_guid));
+            Send_IRCA(CD->USER, "" + _PARAMS[0] + " Is Not Online! Setting new level in DB.", true, "ERROR");
+            CharacterDatabase.PExecute("UPDATE characters SET level = '%u', xp = 0 WHERE guid = '%u'", i_newlvl, GUID_LOPART(guid));
         }
     }
     Send_IRCA(ChanOrPM(CD), "\00313[" + _PARAMS[0]+ "] : Has Been Leveled To " + _PARAMS[1] + ". By: "+CD->USER+".", true, CD->TYPE);
