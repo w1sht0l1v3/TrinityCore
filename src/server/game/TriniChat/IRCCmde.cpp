@@ -2214,7 +2214,8 @@ void IRCCmd::Tele_Player(_CDATA *CD)
                 else
                 {
                     ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(_PARAMS[0]);
-                    Player::SavePositionInDB(mapid,pX,pY,pZ,pO,sMapMgr->GetZoneId(mapid,pX,pY,pZ),guid);
+                    SQLTransaction dummy;
+                    Player::SavePositionInDB(WorldLocation(mapid, pX, pY, pZ, pO), sMapMgr->GetZoneId(mapid, pX, pY, pZ), guid, dummy);
                     sIRC->Send_IRC_Channel(ChanOrPM(CD), rMsg + " \0034*Offline Tele.* ", true, CD->TYPE);
                 }
         }
