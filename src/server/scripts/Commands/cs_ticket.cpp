@@ -185,12 +185,9 @@ public:
         // Inform player, who submitted this ticket, that it is closed
         if (Player* submitter = ticket->GetPlayer())
         {
-            if (submitter->IsInWorld())
-            {
-                WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
-                data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
-                submitter->GetSession()->SendPacket(&data);
-            }
+            WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
+            data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
+            submitter->GetSession()->SendPacket(&data);
         }
         return true;
     }
@@ -255,8 +252,7 @@ public:
         }
 
         if (Player* player = ticket->GetPlayer())
-            if (player->IsInWorld())
-                ticket->SendResponse(player->GetSession());
+            ticket->SendResponse(player->GetSession());
 
         if ((sIRC->TICMASK & 16) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
         {
@@ -326,13 +322,10 @@ public:
 
         if (Player* player = ticket->GetPlayer())
         {
-            if (player->IsInWorld())
-            {
-                // Force abandon ticket
-                WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
-                data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
-                player->GetSession()->SendPacket(&data);
-            }
+            // Force abandon ticket
+            WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
+            data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
+            player->GetSession()->SendPacket(&data);
         }
 
         return true;
@@ -354,8 +347,7 @@ public:
         ticket->SetEscalatedStatus(TICKET_IN_ESCALATION_QUEUE);
 
         if (Player* player = ticket->GetPlayer())
-            if (player->IsInWorld())
-                sTicketMgr->SendTicket(player->GetSession(), ticket);
+            sTicketMgr->SendTicket(player->GetSession(), ticket);
 
         sTicketMgr->UpdateLastChange();
         return true;
@@ -425,7 +417,7 @@ public:
         // Get security level of player, whom this ticket is assigned to
         uint32 security = SEC_PLAYER;
         Player* assignedPlayer = ticket->GetAssignedPlayer();
-        if (assignedPlayer && assignedPlayer->IsInWorld())
+        if (assignedPlayer)
             security = assignedPlayer->GetSession()->GetSecurity();
         else
         {
@@ -498,7 +490,7 @@ public:
 
         // Detect target's GUID
         ObjectGuid guid;
-        if (Player* player = sObjectAccessor->FindPlayerByName(name))
+        if (Player* player = ObjectAccessor::FindPlayerByName(name))
             guid = player->GetGUID();
         else
             guid = sObjectMgr->GetPlayerGUIDByName(name);

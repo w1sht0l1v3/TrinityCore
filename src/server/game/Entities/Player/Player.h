@@ -53,6 +53,8 @@ class PlayerSocial;
 class SpellCastTargets;
 class UpdateMask;
 
+struct CharacterCustomizeInfo;
+
 typedef std::deque<Mail*> PlayerMails;
 
 #define PLAYER_MAX_SKILLS           127
@@ -1508,8 +1510,8 @@ class Player : public Unit, public GridObject<Player>
 
         static void SetUInt32ValueInArray(Tokenizer& data, uint16 index, uint32 value);
         static void SetFloatValueInArray(Tokenizer& data, uint16 index, float value);
-        static void Customize(ObjectGuid guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair);
-        static void SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, ObjectGuid guid);
+        static void Customize(CharacterCustomizeInfo const* customizeInfo, SQLTransaction& trans);
+        static void SavePositionInDB(WorldLocation const& loc, uint16 zoneId, ObjectGuid guid, SQLTransaction& trans);
 
         static void DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
         static void DeleteOldCharacters();
@@ -1720,7 +1722,7 @@ class Player : public Unit, public GridObject<Player>
         void SetContestedPvPTimer(uint32 newTime) {m_contestedPvPTimer = newTime;}
         void ResetContestedPvP();
 
-        /** todo: -maybe move UpdateDuelFlag+DuelComplete to independent DuelHandler.. **/
+        /// @todo: maybe move UpdateDuelFlag+DuelComplete to independent DuelHandler
         DuelInfo* duel;
         void UpdateDuelFlag(time_t currTime);
         void CheckDuelDistance(time_t currTime);
@@ -1828,6 +1830,10 @@ class Player : public Unit, public GridObject<Player>
         void ApplyHealthRegenBonus(int32 amount, bool apply);
         void UpdateManaRegen();
         void UpdateRuneRegen(RuneType rune);
+        uint32 GetRuneTimer(uint8 index) const { return m_runeGraceCooldown[index]; }
+        void SetRuneTimer(uint8 index, uint32 timer) { m_runeGraceCooldown[index] = timer; }
+        uint32 GetLastRuneGraceTimer(uint8 index) const { return m_lastRuneGraceTimers[index]; }
+        void SetLastRuneGraceTimer(uint8 index, uint32 timer) { m_lastRuneGraceTimers[index] = timer; }
 
         ObjectGuid GetLootGUID() const { return m_lootGuid; }
         void SetLootGUID(ObjectGuid guid) { m_lootGuid = guid; }
@@ -2252,7 +2258,7 @@ class Player : public Unit, public GridObject<Player>
         uint64 GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
         void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
         Player* GetNextRandomRaidMember(float radius);
-        PartyResult CanUninviteFromGroup() const;
+        PartyResult CanUninviteFromGroup(ObjectGuid guidMember = ObjectGuid::Empty) const;
 
         // Battleground / Battlefield Group System
         void SetBattlegroundOrBattlefieldRaid(Group* group, int8 subgroup = -1);
@@ -2284,7 +2290,7 @@ class Player : public Unit, public GridObject<Player>
         void SetLastUsedRune(RuneType type) { m_runes->lastUsedRune = type; }
         void SetBaseRune(uint8 index, RuneType baseRune) { m_runes->runes[index].BaseRune = baseRune; }
         void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes->runes[index].CurrentRune = currentRune; }
-        void SetRuneCooldown(uint8 index, uint32 cooldown);
+        void SetRuneCooldown(uint8 index, uint32 cooldown, bool casted = false);
         void SetRuneConvertAura(uint8 index, AuraEffect const* aura);
         void AddRuneByAuraEffect(uint8 index, RuneType newType, AuraEffect const* aura);
         void RemoveRunesByAuraEffect(AuraEffect const* aura);
@@ -2633,6 +2639,10 @@ class Player : public Unit, public GridObject<Player>
         uint8 m_MirrorTimerFlags;
         uint8 m_MirrorTimerFlagsLast;
         bool m_isInWater;
+
+        // Rune type / Rune timer
+        uint32 m_runeGraceCooldown[MAX_RUNES];
+        uint32 m_lastRuneGraceTimers[MAX_RUNES];
 
         // Current teleport data
         WorldLocation m_teleport_dest;

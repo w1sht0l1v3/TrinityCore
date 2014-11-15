@@ -21,7 +21,6 @@ make pull requests to our [Github repository](https://github.com/TrinityCore/Tri
 For further information on the TrinityCore project, please visit our project
 website at [TrinityCore.org](http://www.trinitycore.org).
 
-
 ## Requirements
 
 + Platform: Linux, Windows or Mac
