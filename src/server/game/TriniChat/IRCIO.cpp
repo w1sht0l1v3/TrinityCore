@@ -97,9 +97,47 @@ void IRCClient::Handle_IRC(std::string sData)
                 for (int i=1;i < sIRC->_chan_count + 1;i++)
                 {
                         if (sIRC->_irc_pass[i].size() > 0)
-                                SendIRC("JOIN #" + sIRC->_irc_chan[i] + " " + sIRC->_irc_pass[i]);
+						{
+							//SendIRC("JOIN #" + sIRC->_irc_chan[i] + " " + sIRC->_irc_pass[i]);
+							if(!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+							{
+								bool split = false;
+								for(uint32 j=0;j<sIRC->splitChannels.size();++j)
+								{
+								std::cout << sIRC->_irc_chan[i] << ":" << sIRC->splitChannels[j].channel << "[" << sIRC->splitChannels[j].password << "][" << ((sIRC->splitChannels[j].split) ? "True" : "False") << "] = " << ((sIRC->_irc_chan[i] == sIRC->splitChannels[j].channel) ? "True" : "False") << std::endl;
+									if(sIRC->_irc_chan[i] == sIRC->splitChannels[j].channel)
+									{
+										SendIRC("JOIN #" + sIRC->_irc_chan[i] + "-alliance " + sIRC->_irc_pass[i]);
+										SendIRC("JOIN #" + sIRC->_irc_chan[i] + "-horde " + sIRC->_irc_pass[i]);
+										split = true;
+									}
+								}
+								if(!split)
+									SendIRC("JOIN #"+sIRC->_irc_chan[i]+" "+sIRC->_irc_pass[i]);
+							}
+							else
+								SendIRC("JOIN #" + sIRC->_irc_chan[i] + " " + sIRC->_irc_pass[i]);
+						}
                         else
-                        SendIRC("JOIN #" + sIRC->_irc_chan[i]);
+						{
+							if(!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+							{
+								bool split = false;
+								for(uint32 j=0;j<sIRC->splitChannels.size();++j)
+								{
+									if(sIRC->_irc_chan[i] == sIRC->splitChannels[j].channel)
+									{
+										SendIRC("JOIN #" + sIRC->_irc_chan[i] + "-alliance");
+										SendIRC("JOIN #" + sIRC->_irc_chan[i] + "-horde");
+										split = true;
+									}
+								}
+								if(!split)
+									SendIRC("JOIN #" + sIRC->_irc_chan[i]);
+							}
+							else
+								SendIRC("JOIN #" + sIRC->_irc_chan[i]);
+						}
                 }
                 // See if there's a log channel available, if so: join it.
                 if (sIRC->logchan.size() > 0)
@@ -255,47 +293,63 @@ void IRCClient::Handle_IRC(std::string sData)
                     // magchat is in. the first thing we do is check if it is a command or not
                     if (!Command.IsValid(szUser, FROM, CHAT, CMD))
                     {
-                        std::string fixStaffChan = "#"+sIRC->_staffChan;
-                        bool ignored = false;
-                        switch(sIRC->_staffLink)
+                        if(Command.IsLoggedIn(szUser))
                         {
-                            case 1:
-                                if(fixStaffChan == FROM)
-                                {
-                                    for(uint8 i = 0;i<MAX_CONF_BOTS; i++)
+							std::string newMsg = "", userSaved = szUser;
+							newMsg += "|TInterface\\ChatFrame\\UI-ChatIcon-Blizz:12:20:0:0:32:16:4:28:0:16|t ";
+							newMsg += szUser;
+							szUser = newMsg;
+                            std::string fixStaffChan = "#"+sIRC->_staffChan;
+                            if(FROM[FROM.length()-9] == '-')
+                            {
+                                uint32 removeAlliance = FROM.length()-9;
+                                FROM.erase(removeAlliance, FROM.length()-removeAlliance);
+                            }
+                            else if(FROM[FROM.length()-6] == '-')
+                            {
+                                uint32 removeHorde = FROM.length()-6;
+                                FROM.erase(removeHorde, FROM.length()-removeHorde);
+                            }
+                            bool ignored = false;
+                            switch(sIRC->_staffLink)
+                            {
+                                case 1:
+                                    if(fixStaffChan == FROM)
                                     {
-                                        if(sIRC->_ignore_bots[i] != "")
+                                        for(uint8 i = 0;i<MAX_CONF_BOTS; i++)
                                         {
-                                            if(Command.MakeUpper(sIRC->_ignore_bots[i]) == Command.MakeUpper(szUser))
-                                                ignored = true;
+                                            if(sIRC->_ignore_bots[i] != "")
+                                            {
+                                                if(Command.MakeUpper(sIRC->_ignore_bots[i]) == Command.MakeUpper(userSaved))
+                                                    ignored = true;
+                                            }
+                                        }
+                                        if(!ignored)
+                                        {
+											//setup gm chat
+                                            sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, szUser.c_str(), CHAT.c_str());
                                         }
                                     }
-                                    if(!ignored)
+                                    else
                                     {
-                                        szUser = "<IRC>"+szUser;
-                                        //setup gm chat
-                                        sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, szUser.c_str(), CHAT.c_str());
-                                    }
-                                }
-                                else
-                                {
-                                    for(uint8 i = 0;i<MAX_CONF_BOTS; i++)
-                                    {
-                                        if(sIRC->_ignore_bots[i] != "")
+                                        for(uint8 i = 0;i<MAX_CONF_BOTS; i++)
                                         {
-                                            if(Command.MakeUpper(sIRC->_ignore_bots[i]) == Command.MakeUpper(szUser))
-                                                ignored = true;
+                                            if(sIRC->_ignore_bots[i] != "")
+                                            {
+                                                if(Command.MakeUpper(sIRC->_ignore_bots[i]) == Command.MakeUpper(userSaved))
+                                                    ignored = true;
+                                            }
+                                        }
+                                        if(!ignored)
+                                        {
+                                            Send_WoW_Channel(GetWoWChannel(FROM).c_str(), IRCcol2WoW(MakeMsg(MakeMsg(GetChatLine(IRC_WOW), "$Name", szUser), "$Msg", CHAT)));
                                         }
                                     }
-                                    if(!ignored)
-                                    {
-                                        Send_WoW_Channel(GetWoWChannel(FROM).c_str(), IRCcol2WoW(MakeMsg(MakeMsg(GetChatLine(IRC_WOW), "$Name", szUser), "$Msg", CHAT)));
-                                    }
-                                }
-                                break;
-                            case 0:
-                                Send_WoW_Channel(GetWoWChannel(FROM).c_str(), IRCcol2WoW(MakeMsg(MakeMsg(GetChatLine(IRC_WOW), "$Name", szUser), "$Msg", CHAT)));
-                                break;
+                                    break;
+                                case 0:
+                                    Send_WoW_Channel(GetWoWChannel(FROM).c_str(), IRCcol2WoW(MakeMsg(MakeMsg(GetChatLine(IRC_WOW), "$Name", szUser), "$Msg", CHAT)));
+                                    break;
+                            }
                         }
                     }
                     // if we indeed receieved a command we do not want to display this to the players
@@ -362,12 +416,12 @@ void IRCClient::Handle_WoW_Channel(std::string Channel, Player *plr, int nAction
             switch(nAction)
             {
                 case CHANNEL_JOIN:
-                    Send_IRC_Channel(GetIRCChannel(Channel), MakeMsg(MakeMsg(MakeMsg(GetChatLine(JOIN_WOW), "$Name", ChatTag + plr->GetName().c_str()), "$Channel", Channel), "$GM", GMRank));
+                    Send_IRC_Channel(GetIRCChannel(Channel), MakeMsg(MakeMsg(MakeMsg(GetChatLine(JOIN_WOW), "$Name", ChatTag + plr->GetName().c_str()), "$Channel", Channel), "$GM", GMRank), false, "PRIVMSG", plr->GetTeam());
                     WorldDatabase.PExecute(lchan.c_str(), plr->GetGUID());
                     WorldDatabase.PExecute(query.c_str(), plr->GetGUID());
                     break;
                 case CHANNEL_LEAVE:
-                    Send_IRC_Channel(GetIRCChannel(Channel), MakeMsg(MakeMsg(MakeMsg(GetChatLine(LEAVE_WOW), "$Name", ChatTag + plr->GetName().c_str()), "$Channel", Channel), "$GM", GMRank));
+                    Send_IRC_Channel(GetIRCChannel(Channel), MakeMsg(MakeMsg(MakeMsg(GetChatLine(LEAVE_WOW), "$Name", ChatTag + plr->GetName().c_str()), "$Channel", Channel), "$GM", GMRank), false, "PRIVMSG", plr->GetTeam());
                     WorldDatabase.PExecute(lchan.c_str(), plr->GetGUID());
                     break;
             }
@@ -378,8 +432,31 @@ void IRCClient::Handle_WoW_Channel(std::string Channel, Player *plr, int nAction
 // This function sends chat to a irc channel or user
 // to prevent the # beeing appended to send a msg to a user
 // set the NoPrefix to true
-void IRCClient::Send_IRC_Channel(std::string sChannel, std::string sMsg, bool NoPrefix, std::string nType)
+void IRCClient::Send_IRC_Channel(std::string sChannel, std::string sMsg, bool NoPrefix, std::string nType, uint32 team)
 {
+	if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+	{
+        bool split = false;
+        for(uint32 i=0;i<splitChannels.size();++i)
+        {
+            if(splitChannels[i].channel == sChannel)
+                split = true;
+        }
+        if(split)
+        {
+            switch(team)
+            {
+            case ALLIANCE: // 1
+                sChannel += "-alliance";
+                break;
+            case HORDE: // 2
+                sChannel += "-horde";
+                break;
+            default: // this is to keep system channels the same
+                break;
+            }
+        }
+	}
     std::string mType = "PRIVMSG";
     if (Command.MakeUpper(nType.c_str()) == "NOTICE")
         mType = "NOTICE";
@@ -408,7 +485,9 @@ void IRCClient::Send_WoW_IRC(Player *plr, std::string Channel, std::string Msg)
 {
     // Check if the channel exist in our configuration
     if (Channel_Valid(Channel) && Msg.substr(0, 1) != ".")
-        Send_IRC_Channel(GetIRCChannel(Channel), MakeMsgP(WOW_IRC, Msg, plr));
+    {
+        Send_IRC_Channel(GetIRCChannel(Channel), MakeMsgP(WOW_IRC, Msg, plr), false, "PRIVMSG", plr->GetTeam());
+    }
 }
 
 void IRCClient::Send_WoW_Player(std::string sPlayer, std::string sMsg)
@@ -446,7 +525,7 @@ void IRCClient::Send_WoW_Channel(const char *channel, std::string chat)
         if (ConvertUTF8(chat2.c_str(), chat2))
             chat = chat2;
     #endif
-
+    
     HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {

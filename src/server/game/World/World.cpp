@@ -1308,12 +1308,18 @@ void World::LoadConfigSettings(bool reload)
         ss << i;
         std::string ci = "irc.chan_" + ss.str();
         std::string pw = "irc.pass_" + ss.str();
+        std::string sp = "split.chan_" + ss.str();
         std::string t_chan = sConfigMgr->GetStringDefault(ci.c_str(), "");
         if (t_chan.size() > 0)
         {
             sIRC->_chan_count++;
             sIRC->_irc_chan[sIRC->_chan_count] = t_chan;
             sIRC->_irc_pass[sIRC->_chan_count] = sConfigMgr->GetStringDefault(pw.c_str(), t_chan.c_str());
+            // custom channel config
+            sIRC->splitChannels[sIRC->_chan_count].channel = t_chan;
+            sIRC->splitChannels[sIRC->_chan_count].password = sConfigMgr->GetStringDefault(pw.c_str(), t_chan.c_str());
+            sIRC->splitChannels[sIRC->_chan_count].split = sConfigMgr->GetBoolDefault(sp.c_str(), false);
+            // end custom channel config
             ci = "wow.chan_" + ss.str();
             sIRC->_wow_chan[sIRC->_chan_count] = sConfigMgr->GetStringDefault(ci.c_str(), t_chan.c_str());
         }
