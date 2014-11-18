@@ -104,7 +104,6 @@ void IRCClient::Handle_IRC(std::string sData)
 								bool split = false;
 								for(uint32 j=0;j<sIRC->splitChannels.size();++j)
 								{
-								std::cout << sIRC->_irc_chan[i] << ":" << sIRC->splitChannels[j].channel << "[" << sIRC->splitChannels[j].password << "][" << ((sIRC->splitChannels[j].split) ? "True" : "False") << "] = " << ((sIRC->_irc_chan[i] == sIRC->splitChannels[j].channel) ? "True" : "False") << std::endl;
 									if(sIRC->_irc_chan[i] == sIRC->splitChannels[j].channel)
 									{
 										SendIRC("JOIN #" + sIRC->_irc_chan[i] + "-alliance " + sIRC->_irc_pass[i]);
