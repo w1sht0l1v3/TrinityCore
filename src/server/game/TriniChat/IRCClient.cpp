@@ -29,24 +29,29 @@
     #define Delay(x) sleep(x / 1000)
 #endif*/
 // IRCClient Constructor
-IRCClient::IRCClient()
+IRCClient::IRCClient():
+	thread(nullptr)
 {
 //    for (int i = 0;i < 5;i++)
 //        sIRC->Script_Lock[i] = false;
 }
 // IRCClient Destructor
-IRCClient::~IRCClient(){}
+IRCClient::~IRCClient()
+{
+	TC_LOG_ERROR("misc", "****** TriniChat Shutting Down ********");
+	// delete if not running
+	Disconnect();
+	delete thread;
+}
 
 void TrinityChatThread()
 {
-    //call irc bot
-    IRCClient* a = nullptr;
     // run the bot within a thread
-    a->run();
+    sIRC->Running = sIRC->thread->run();
 }
 
 // ZThread Entry This function is called when the thread is created in Master.cpp (trinitycore)
-void IRCClient::run()
+bool IRCClient::run()
 {
 //    iLog.WriteLog(" %s : ****** TrinityCore With TriniChat Has Been Started ******", iLog.GetLogDateTimeStr().c_str());
 
@@ -72,6 +77,7 @@ void IRCClient::run()
     }
     // check for hanging name
     sIRC->_ignore_bots[counter] = temp;
+	
     TC_LOG_INFO("server.loading", ">> TrinityChat Ignore Bots set.");
     TC_LOG_ERROR("misc", "\n%s\n%s\n%s\n%s",
         "***************************************",
@@ -102,7 +108,12 @@ void IRCClient::run()
                 {
                     TC_LOG_ERROR("misc", "*** TriniChat: Logged In And Running!! *");
                     // While we are connected to the irc server keep listening for data on the socket
-                    while (sIRC->Connected && !World::IsStopped()){ sIRC->SockRecv(); }
+                    while (sIRC->Connected && !World::IsStopped())
+					{
+						sIRC->SockRecv();
+						if(World::IsStopped())
+							Disconnect();
+					}
                 }
                 TC_LOG_ERROR("misc", "*** TriniChat: Connection To IRC Server Lost! ***");
             }
@@ -126,7 +137,8 @@ void IRCClient::run()
             TC_LOG_ERROR("misc", "** TriniChat: Could not initialize socket");
         }
     }
-    while (!World::IsStopped()){};
+    //while (!World::IsStopped()){};
+	return false;
 }
 
 std::string IRCClient::GetChatLine(int nItem)

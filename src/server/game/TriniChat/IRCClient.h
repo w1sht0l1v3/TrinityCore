@@ -50,6 +50,12 @@ enum CLINES
     LEAVE_IRC = 5,
     CHANGE_NICK = 6
 };
+struct Channels
+{
+    std::string channel;
+    std::string password;
+    bool split;
+};
 // CACTION is used by the Handle_WoW_Channel function
 // this function is called in channel.h when a player
 // joins or leave a channel inside the client.
@@ -76,7 +82,7 @@ public:
     // IRCClient Destructor
     ~IRCClient();
     // ZThread Entry
-    void run();
+    bool run();
     static IRCClient* instance(boost::asio::io_service* ioService = nullptr)
     {
         static IRCClient instance;
@@ -90,7 +96,7 @@ public:
         return &instance;
     }
     // Send a message to the specified IRC channel
-    void Send_IRC_Channel(std::string sChannel, std::string sMsg, bool NoPrefix = false, std::string nType = "PRIVMSG");
+    void Send_IRC_Channel(std::string sChannel, std::string sMsg, bool NoPrefix = false, std::string nType = "PRIVMSG", uint32 team = 0);
 public:
     // AH Function
     void AHCancel(uint64 itmid, std::string itmnme, std::string plname, uint32 faction);
@@ -190,6 +196,8 @@ public:
     std::string _irc_chan[MAX_CONF_CHANNELS];
     // Game Channel list
     std::string _wow_chan[MAX_CONF_CHANNELS];
+	// split chats
+	std::array<Channels, MAX_CONF_CHANNELS> splitChannels;
     // AutoJoin Options
     int ajoin;
     string ajchan;
@@ -265,6 +273,7 @@ public:
     // MAX_SCRIPT_INST
 
     IRCLog iLog;
+	IRCClient* thread;
 
 private:
     // Returns default chatline based on enum CLINES
