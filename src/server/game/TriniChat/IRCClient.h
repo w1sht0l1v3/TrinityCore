@@ -103,6 +103,8 @@ public:
     //bool BeenToGMI(float posx, float posy, std::string player, std::string from);
     // IRCClient active
     bool Active;
+    // check if we are running
+    bool Running;
     // Connected to IRC
     bool Connected;
     // Socket indentifier
