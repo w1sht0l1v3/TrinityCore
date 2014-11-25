@@ -127,7 +127,8 @@ bool IRCClient::run()
             // If we need to reattempt a connection wait WAIT_CONNECT_TIME milli seconds before we try again
             if (sIRC->Active)
             {
-                boost::this_thread::sleep(boost::posix_time::milliseconds((long)_wct));
+                //boost::this_thread::sleep(boost::posix_time::milliseconds((long)_wct));
+                boost::this_thread::sleep(boost::posix_time::milliseconds(30000));
             }
         }
         else
