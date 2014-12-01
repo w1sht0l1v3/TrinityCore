@@ -23,18 +23,10 @@
 #include "ObjectMgr.h"
 #include "MapManager.h"
 
-/*#ifdef WIN32
-    #define Delay(x) Sleep(x)
-#else
-    #define Delay(x) sleep(x / 1000)
-#endif*/
 // IRCClient Constructor
 IRCClient::IRCClient():
-	thread(nullptr)
-{
-//    for (int i = 0;i < 5;i++)
-//        sIRC->Script_Lock[i] = false;
-}
+	thread(nullptr) {}
+
 // IRCClient Destructor
 IRCClient::~IRCClient()
 {
@@ -53,11 +45,8 @@ void TrinityChatThread()
 // ZThread Entry This function is called when the thread is created in Master.cpp (trinitycore)
 bool IRCClient::run()
 {
-//    iLog.WriteLog(" %s : ****** TrinityCore With TriniChat Has Been Started ******", iLog.GetLogDateTimeStr().c_str());
-
     // before we begin we wait a few
-    // mangos is still starting up.
-    //std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    // core is still starting up.
     boost::this_thread::sleep(boost::posix_time::milliseconds(500));
     std::stringstream ss(sIRC->_bot_names);
     string temp = "";
@@ -127,8 +116,7 @@ bool IRCClient::run()
             // If we need to reattempt a connection wait WAIT_CONNECT_TIME milli seconds before we try again
             if (sIRC->Active)
             {
-                //boost::this_thread::sleep(boost::posix_time::milliseconds((long)_wct));
-                boost::this_thread::sleep(boost::posix_time::milliseconds(30000));
+                boost::this_thread::sleep(boost::posix_time::milliseconds(_wct));
             }
         }
         else
@@ -138,7 +126,6 @@ bool IRCClient::run()
             TC_LOG_ERROR("misc", "** TriniChat: Could not initialize socket");
         }
     }
-    //while (!World::IsStopped()){};
 	return false;
 }
 
