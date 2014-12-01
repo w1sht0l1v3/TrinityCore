@@ -97,46 +97,46 @@ void IRCClient::Handle_IRC(std::string sData)
                 for (int i=1;i < sIRC->_chan_count + 1;i++)
                 {
                         if (sIRC->_irc_pass[i].size() > 0)
-						{
-							//SendIRC("JOIN #" + sIRC->_irc_chan[i] + " " + sIRC->_irc_pass[i]);
-							if(!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
-							{
-								bool split = false;
-								for(uint32 j=0;j<sIRC->splitChannels.size();++j)
-								{
-									if(sIRC->_irc_chan[i] == sIRC->splitChannels[j].channel)
-									{
-										SendIRC("JOIN #" + sIRC->_irc_chan[i] + "-alliance " + sIRC->_irc_pass[i]);
-										SendIRC("JOIN #" + sIRC->_irc_chan[i] + "-horde " + sIRC->_irc_pass[i]);
-										split = true;
-									}
-								}
-								if(!split)
-									SendIRC("JOIN #"+sIRC->_irc_chan[i]+" "+sIRC->_irc_pass[i]);
-							}
-							else
-								SendIRC("JOIN #" + sIRC->_irc_chan[i] + " " + sIRC->_irc_pass[i]);
-						}
+                        {
+                            //SendIRC("JOIN #" + sIRC->_irc_chan[i] + " " + sIRC->_irc_pass[i]);
+                            if(!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+                            {
+                                bool split = false;
+                                for(uint32 j=0;j<sIRC->splitChannels.size();++j)
+                                {
+                                    if(sIRC->_irc_chan[i] == sIRC->splitChannels[j].channel)
+                                    {
+                                        SendIRC("JOIN #" + sIRC->_irc_chan[i] + "-alliance " + sIRC->_irc_pass[i]);
+                                        SendIRC("JOIN #" + sIRC->_irc_chan[i] + "-horde " + sIRC->_irc_pass[i]);
+                                        split = true;
+                                    }
+                                }
+                                if(!split)
+                                    SendIRC("JOIN #"+sIRC->_irc_chan[i]+" "+sIRC->_irc_pass[i]);
+                            }
+                            else
+                                SendIRC("JOIN #" + sIRC->_irc_chan[i] + " " + sIRC->_irc_pass[i]);
+                        }
                         else
-						{
-							if(!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
-							{
-								bool split = false;
-								for(uint32 j=0;j<sIRC->splitChannels.size();++j)
-								{
-									if(sIRC->_irc_chan[i] == sIRC->splitChannels[j].channel)
-									{
-										SendIRC("JOIN #" + sIRC->_irc_chan[i] + "-alliance");
-										SendIRC("JOIN #" + sIRC->_irc_chan[i] + "-horde");
-										split = true;
-									}
-								}
-								if(!split)
-									SendIRC("JOIN #" + sIRC->_irc_chan[i]);
-							}
-							else
-								SendIRC("JOIN #" + sIRC->_irc_chan[i]);
-						}
+                        {
+                            if(!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+                            {
+                                bool split = false;
+                                for(uint32 j=0;j<sIRC->splitChannels.size();++j)
+                                {
+                                    if(sIRC->_irc_chan[i] == sIRC->splitChannels[j].channel)
+                                    {
+                                        SendIRC("JOIN #" + sIRC->_irc_chan[i] + "-alliance");
+                                        SendIRC("JOIN #" + sIRC->_irc_chan[i] + "-horde");
+                                        split = true;
+                                    }
+                                }
+                                if(!split)
+                                    SendIRC("JOIN #" + sIRC->_irc_chan[i]);
+                            }
+                            else
+                                SendIRC("JOIN #" + sIRC->_irc_chan[i]);
+                        }
                 }
                 // See if there's a log channel available, if so: join it.
                 if (sIRC->logchan.size() > 0)
@@ -294,10 +294,10 @@ void IRCClient::Handle_IRC(std::string sData)
                     {
                         if(Command.IsLoggedIn(szUser))
                         {
-							std::string newMsg = "", userSaved = szUser;
-							newMsg += "|TInterface\\ChatFrame\\UI-ChatIcon-Blizz:12:20:0:0:32:16:4:28:0:16|t ";
-							newMsg += szUser;
-							szUser = newMsg;
+                            std::string newMsg = "", userSaved = szUser;
+                            newMsg += "|TInterface\\ChatFrame\\UI-ChatIcon-Blizz:12:20:0:0:32:16:4:28:0:16|t ";
+                            newMsg += szUser;
+                            szUser = newMsg;
                             std::string fixStaffChan = "#"+sIRC->_staffChan;
                             if(FROM[FROM.length()-9] == '-')
                             {
@@ -325,7 +325,7 @@ void IRCClient::Handle_IRC(std::string sData)
                                         }
                                         if(!ignored)
                                         {
-											//setup gm chat
+                                            //setup gm chat
                                             sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, szUser.c_str(), CHAT.c_str());
                                         }
                                     }
@@ -433,8 +433,8 @@ void IRCClient::Handle_WoW_Channel(std::string Channel, Player *plr, int nAction
 // set the NoPrefix to true
 void IRCClient::Send_IRC_Channel(std::string sChannel, std::string sMsg, bool NoPrefix, std::string nType, uint32 team)
 {
-	if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
-	{
+    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+    {
         bool split = false;
         for(uint32 i=0;i<splitChannels.size();++i)
         {
@@ -455,7 +455,7 @@ void IRCClient::Send_IRC_Channel(std::string sChannel, std::string sMsg, bool No
                 break;
             }
         }
-	}
+    }
     std::string mType = "PRIVMSG";
     if (Command.MakeUpper(nType.c_str()) == "NOTICE")
         mType = "NOTICE";
@@ -524,7 +524,7 @@ void IRCClient::Send_WoW_Channel(const char *channel, std::string chat)
         if (ConvertUTF8(chat2.c_str(), chat2))
             chat = chat2;
     #endif
-    
+
     HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {

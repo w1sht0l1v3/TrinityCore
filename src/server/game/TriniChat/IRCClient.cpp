@@ -25,15 +25,15 @@
 
 // IRCClient Constructor
 IRCClient::IRCClient():
-	thread(nullptr) {}
+    thread(nullptr) {}
 
 // IRCClient Destructor
 IRCClient::~IRCClient()
 {
-	TC_LOG_ERROR("misc", "****** TriniChat Shutting Down ********");
-	// delete if not running
-	Disconnect();
-	delete thread;
+    TC_LOG_ERROR("misc", "****** TriniChat Shutting Down ********");
+    // delete if not running
+    Disconnect();
+    delete thread;
 }
 
 void TrinityChatThread()
@@ -66,7 +66,7 @@ bool IRCClient::run()
     }
     // check for hanging name
     sIRC->_ignore_bots[counter] = temp;
-	
+
     TC_LOG_INFO("server.loading", ">> TrinityChat Ignore Bots set.");
     TC_LOG_ERROR("misc", "\n%s\n%s\n%s\n%s",
         "***************************************",
@@ -98,11 +98,11 @@ bool IRCClient::run()
                     TC_LOG_ERROR("misc", "*** TriniChat: Logged In And Running!! *");
                     // While we are connected to the irc server keep listening for data on the socket
                     while (sIRC->Connected && !World::IsStopped())
-					{
-						sIRC->SockRecv();
-						if(World::IsStopped())
-							Disconnect();
-					}
+                    {
+                        sIRC->SockRecv();
+                        if(World::IsStopped())
+                            Disconnect();
+                    }
                 }
                 TC_LOG_ERROR("misc", "*** TriniChat: Connection To IRC Server Lost! ***");
             }
@@ -126,7 +126,7 @@ bool IRCClient::run()
             TC_LOG_ERROR("misc", "** TriniChat: Could not initialize socket");
         }
     }
-	return false;
+    return false;
 }
 
 std::string IRCClient::GetChatLine(int nItem)

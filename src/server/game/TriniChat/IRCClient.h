@@ -198,8 +198,8 @@ public:
     std::string _irc_chan[MAX_CONF_CHANNELS];
     // Game Channel list
     std::string _wow_chan[MAX_CONF_CHANNELS];
-	// split chats
-	std::array<Channels, MAX_CONF_CHANNELS> splitChannels;
+    // split chats
+    std::array<Channels, MAX_CONF_CHANNELS> splitChannels;
     // AutoJoin Options
     int ajoin;
     string ajchan;
@@ -275,7 +275,7 @@ public:
     // MAX_SCRIPT_INST
 
     IRCLog iLog;
-	IRCClient* thread;
+    IRCClient* thread;
 
 private:
     // Returns default chatline based on enum CLINES
