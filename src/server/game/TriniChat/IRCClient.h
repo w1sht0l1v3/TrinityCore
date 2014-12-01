@@ -166,7 +166,7 @@ public:
     // IRC Leave Default channel
     int _ldefc;
     // Wait Connect Time
-    long _wct;
+    int _wct;
     // Check if staff chat is enabled
     int _staffLink;
     // IRC Default Staff channel

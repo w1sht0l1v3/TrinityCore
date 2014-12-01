@@ -47,7 +47,7 @@ bool IRCClient::run()
 {
     // before we begin we wait a few
     // core is still starting up.
-    boost::this_thread::sleep(boost::posix_time::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     std::stringstream ss(sIRC->_bot_names);
     string temp = "";
     uint8 counter = 0;
@@ -116,8 +116,7 @@ bool IRCClient::run()
             // If we need to reattempt a connection wait WAIT_CONNECT_TIME milli seconds before we try again
             if (sIRC->Active)
             {
-                // someone find teh freaking type define for _wct...untill then we hardcode it
-                boost::this_thread::sleep(boost::posix_time::milliseconds(30000));
+                std::this_thread::sleep_for(std::chrono::milliseconds(sIRC->_wct));
             }
         }
         else
