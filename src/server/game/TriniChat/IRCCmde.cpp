@@ -50,6 +50,7 @@ void IRCCmd::Handle_Login(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, 2);
     std::string isbanned = AcctIsBanned(_PARAMS[0]);
+    int GMLevel = 0;
     LoginDatabase.EscapeString(_PARAMS[0]);
     LoginDatabase.EscapeString(_PARAMS[1]);
     if (isbanned == "NOTBANNED")
@@ -72,7 +73,7 @@ void IRCCmd::Handle_Login(_CDATA *CD)
                     if(result1)
                     {
                         Field *fields1 = result1->Fetch();
-                        int GMLevel = fields1[0].GetUInt8();
+                        GMLevel = fields1[0].GetUInt8();
                         if (GMLevel >= 0)
                         {
                             NewClient->GMLevel = fields1[0].GetUInt8();
