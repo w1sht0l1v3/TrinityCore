@@ -295,9 +295,12 @@ void IRCClient::Handle_IRC(std::string sData)
                         if(Command.IsLoggedIn(szUser))
                         {
                             std::string newMsg = "", userSaved = szUser;
-                            newMsg += "|TInterface\\ChatFrame\\UI-ChatIcon-Blizz:12:20:0:0:32:16:4:28:0:16|t ";
-                            newMsg += szUser;
-                            szUser = newMsg;
+                            if(Command.GMChat(szUser))
+                            {
+                                newMsg += "|TInterface\\ChatFrame\\UI-ChatIcon-Blizz:12:20:0:0:32:16:4:28:0:16|t ";
+                                newMsg += szUser;
+                                szUser = newMsg;
+                            }
                             std::string fixStaffChan = "#"+sIRC->_staffChan;
                             if(FROM[FROM.length()-9] == '-')
                             {

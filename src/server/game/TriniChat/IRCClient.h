@@ -55,6 +55,7 @@ struct Channels
     std::string channel;
     std::string password;
     bool split;
+    int rank;
 };
 // CACTION is used by the Handle_WoW_Channel function
 // this function is called in channel.h when a player

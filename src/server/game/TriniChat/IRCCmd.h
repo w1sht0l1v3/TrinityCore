@@ -44,6 +44,7 @@ struct _client
     std::string Name;
     std::string UName;
     int         GMLevel;
+    bool        GMChat;
 };
 struct _CDATA
 {
@@ -86,6 +87,7 @@ class IRCCmd
     public:
         static std::string MakeMsg(const char *sLine, ...);
         static std::string ChanOrPM(_CDATA *CD);
+        bool GMChat(std::string sName);
         int AcctLevel(std::string plnme);
         int GetLevel(std::string sName);
         std::string MakeUpper(std::string Channel);

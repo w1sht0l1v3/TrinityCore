@@ -713,6 +713,16 @@ int IRCCmd::GetLevel(std::string sName)
     return 0;
 }
 
+bool IRCCmd::GMChat(std::string sName)
+{
+    for (std::list<_client*>::iterator i=_CLIENTS.begin(); i!=_CLIENTS.end();i++)
+        {
+            if ((*i)->Name == sName)
+                return (*i)->GMChat;
+            }
+            return false;
+        }
+
 int IRCCmd::AcctLevel(std::string plnme)
 {
     ObjectGuid guid = sObjectMgr->GetPlayerGUIDByName(plnme);

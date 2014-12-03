@@ -58,25 +58,33 @@ void IRCCmd::Handle_Login(_CDATA *CD)
         {
             if (!AcctIsLoggedIn(_PARAMS[0].c_str()))
             {
-                QueryResult result = LoginDatabase.PQuery("SELECT `gmlevel` FROM `account`, `account_access` WHERE `username`='%s' AND `account_access`.`id`=`account`.`id` AND `sha_pass_hash`=SHA1(CONCAT(UPPER(`username`),':',UPPER('%s')));", _PARAMS[0].c_str(), _PARAMS[1].c_str());
+                QueryResult result = LoginDatabase.PQuery("SELECT `id` FROM `account` WHERE `username`='%s' AND `sha_pass_hash`=SHA1(CONCAT(UPPER(`username`),':',UPPER('%s')));", _PARAMS[0].c_str(), _PARAMS[1].c_str());
+                //QueryResult result = LoginDatabase.PQuery("SELECT `gmlevel` FROM `account`, `account_access` WHERE `username`='%s' AND `account_access`.`id`=`account`.`id` AND `sha_pass_hash`=SHA1(CONCAT(UPPER(`username`),':',UPPER('%s')));", _PARAMS[0].c_str(), _PARAMS[1].c_str());
                 if (result)
                 {
                     Field *fields = result->Fetch();
-                    int GMLevel = fields[0].GetUInt8();
-                    if (GMLevel >= 0)
-                    {
-                        _client *NewClient = new _client();
-                        NewClient->Name     = CD->USER;
-                        NewClient->UName    = MakeUpper(_PARAMS[0]);
-                        NewClient->GMLevel  = fields[0].GetUInt8();
-                        _CLIENTS.push_back(NewClient);
-                        Send_IRCA(CD->USER, MakeMsg("You Are Now Logged In As %s.", _PARAMS[0].c_str()), true, CD->TYPE);
+                    _client *NewClient = new _client();
+                    NewClient->Name     = CD->USER;
+                    NewClient->UName    = MakeUpper(_PARAMS[0]);
+                    NewClient->GMChat   = false;
 
-                        if (sIRC->_op_gm == 1 && GMLevel >= sIRC->_op_gm_lev)
+                    QueryResult result1 = LoginDatabase.PQuery("SELECT `gmlevel` FROM `account_access` WHERE `id`=%i;",fields[0].GetUInt8());
+                    if(result1)
+                    {
+                        Field *fields1 = result1->Fetch();
+                        int GMLevel = fields1[0].GetUInt8();
+                        if (GMLevel >= 0)
                         {
-                            for (int i=1;i < sIRC->_chan_count + 1;i++)
-                            sIRC->SendIRC("MODE #"+sIRC->_irc_chan[i]+" +o "+CD->USER);
+                            NewClient->GMLevel = fields1[0].GetUInt8();
                         }
+                    }
+                    _CLIENTS.push_back(NewClient);
+                    Send_IRCA(CD->USER, MakeMsg("You Are Now Logged In As %s.", _PARAMS[0].c_str()), true, CD->TYPE);
+
+                    if (sIRC->_op_gm == 1 && GMLevel >= sIRC->_op_gm_lev)
+                    {
+                        for (int i=1;i < sIRC->_chan_count + 1;i++)
+                        sIRC->SendIRC("MODE #"+sIRC->_irc_chan[i]+" +o "+CD->USER);
                     }
                 }
                 else

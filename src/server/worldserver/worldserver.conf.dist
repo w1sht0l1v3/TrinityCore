@@ -3348,10 +3348,14 @@ irc.kickmsg = "Do Not Kick Me Again, Severe Actions Will Be Taken!"
 # If we split alliance/horde chat in separate irc channels;this will append -alliance or -horde to irc channel name
 # Example:
 # split.chan_1 = 1
+# Set a rank required to chat in the channel
+# Example:
+# rank.chan_1 = 0 // 0 = all players, 1 = rank 1 and so forth
 irc.chan_1 = "ircchan"
 wow.chan_1 = "world"
 irc.pass_1 = "pass"
 split.chan_1 = 0
+rank.chan_1 = 0
 
 ##################################################
 # irc.staff_link
