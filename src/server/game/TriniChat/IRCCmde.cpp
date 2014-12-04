@@ -50,7 +50,6 @@ void IRCCmd::Handle_Login(_CDATA *CD)
 {
     std::string* _PARAMS = getArray(CD->PARAMS, 2);
     std::string isbanned = AcctIsBanned(_PARAMS[0]);
-    int GMLevel = 0;
     LoginDatabase.EscapeString(_PARAMS[0]);
     LoginDatabase.EscapeString(_PARAMS[1]);
     if (isbanned == "NOTBANNED")
@@ -73,20 +72,19 @@ void IRCCmd::Handle_Login(_CDATA *CD)
                     if(result1)
                     {
                         Field *fields1 = result1->Fetch();
-                        GMLevel = fields1[0].GetUInt8();
+                        int GMLevel = fields1[0].GetUInt8();
                         if (GMLevel >= 0)
                         {
+                            if (sIRC->_op_gm == 1 && GMLevel >= sIRC->_op_gm_lev)
+                            {
+                                for (int i = 1; i < sIRC->_chan_count + 1; i++)
+                                    sIRC->SendIRC("MODE #" + sIRC->_irc_chan[i] + " +o " + CD->USER);
+                            }
                             NewClient->GMLevel = fields1[0].GetUInt8();
                         }
                     }
                     _CLIENTS.push_back(NewClient);
                     Send_IRCA(CD->USER, MakeMsg("You Are Now Logged In As %s.", _PARAMS[0].c_str()), true, CD->TYPE);
-
-                    if (sIRC->_op_gm == 1 && GMLevel >= sIRC->_op_gm_lev)
-                    {
-                        for (int i=1;i < sIRC->_chan_count + 1;i++)
-                        sIRC->SendIRC("MODE #"+sIRC->_irc_chan[i]+" +o "+CD->USER);
-                    }
                 }
                 else
                     Send_IRCA(CD->USER, "Sorry, Your Username Or Password Is Incorrect. Please Try Again. ", true, "ERROR");
