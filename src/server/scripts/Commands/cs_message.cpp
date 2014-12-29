@@ -168,7 +168,7 @@ public:
         if (!*args)
             return false;
 
-		if ((sIRC->BOTMASK & 256) != 0 && sIRC->anchn.size() > 0)
+        if ((sIRC->BOTMASK & 256) != 0 && sIRC->anchn.size() > 0)
         {
             std::string ircchan = "#";
             ircchan += sIRC->anchn;

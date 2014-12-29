@@ -1268,7 +1268,7 @@ void World::LoadConfigSettings(bool reload)
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 
-	// IRC Configurations.
+    // IRC Configurations.
     int ConfCnt = 0;
     sIRC->_chan_count = 0;
     if (sConfigMgr->GetIntDefault("irc.active", 1) == 1)
@@ -1462,7 +1462,7 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize config settings
     LoadConfigSettings();
-		TC_LOG_ERROR("misc", "Loading TrinityCore configuration settings...");
+        TC_LOG_ERROR("misc", "Loading TrinityCore configuration settings...");
 
     ///- Initialize Allowed Security Level
     LoadDBAllowedSecurityLevel();
@@ -1909,8 +1909,8 @@ void World::SetInitialWorldSettings()
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES(%u, %u, 0, '%s')",
                             realmID, uint32(m_startTime), _FULLVERSION);       // One-time query
 
-	static uint32 autoanc = 1;
-	autoanc = sIRC->autoanc;
+    static uint32 autoanc = 1;
+    autoanc = sIRC->autoanc;
 
     m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
@@ -1928,7 +1928,7 @@ void World::SetInitialWorldSettings()
 
     m_timers[WUPDATE_PINGDB].SetInterval(getIntConfig(CONFIG_DB_PING_INTERVAL)*MINUTE*IN_MILLISECONDS);    // Mysql ping time in minutes
 
-	m_timers[WUPDATE_AUTOANC].SetInterval(autoanc*MINUTE*1000);
+    m_timers[WUPDATE_AUTOANC].SetInterval(autoanc*MINUTE*1000);
 
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
@@ -2307,11 +2307,11 @@ void World::Update(uint32 diff)
         WorldDatabase.KeepAlive();
     }
 
-	if (m_timers[WUPDATE_AUTOANC].Passed())
-	{
-	    m_timers[WUPDATE_AUTOANC].Reset();
-			SendRNDBroadcastIRC();
-	}
+    if (m_timers[WUPDATE_AUTOANC].Passed())
+    {
+        m_timers[WUPDATE_AUTOANC].Reset();
+            SendRNDBroadcastIRC();
+    }
 
     // update the instance reset times
     sInstanceSaveMgr->Update();
