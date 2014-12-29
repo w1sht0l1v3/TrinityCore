@@ -124,7 +124,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
             //begin // because newlines don't show on irc
             std::string tmsg = ticket->GetMessage().c_str();
             int position = tmsg.find( "\n" ); // find first newline
-            while ( position != int(string::npos) ) 
+            while ( position != int(string::npos) )
             {
                 tmsg.replace( position, 1, "|" );
                 position = tmsg.find( "\n", position + 1 );
@@ -161,7 +161,7 @@ void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
 
         response = GMTICKET_RESPONSE_UPDATE_SUCCESS;
 
-		if ((sIRC->TICMASK & 2) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
+        if ((sIRC->TICMASK & 2) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
         {
             std::string ircchan = "#";
             std::ostringstream smsg;
@@ -206,7 +206,7 @@ void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recvData*/)
         sTicketMgr->CloseTicket(ticket->GetId(), GetPlayer()->GetGUID());
         sTicketMgr->SendTicket(this, NULL);
 
-		if ((sIRC->TICMASK & 4) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
+        if ((sIRC->TICMASK & 4) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
         {
             std::string ircchan = "#";
             std::ostringstream smsg;
@@ -312,7 +312,7 @@ void WorldSession::HandleReportLag(WorldPacket& recvData)
     stmt->setUInt32(7, time(NULL));
     CharacterDatabase.Execute(stmt);
 
-	if ((sIRC->TICMASK & 8) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
+    if ((sIRC->TICMASK & 8) != 0 && (sIRC->BOTMASK & 1024) != 0 && sIRC->ticann.size() > 0)
     {
         std::string ircchan = "#";
         std::ostringstream lmsg;
