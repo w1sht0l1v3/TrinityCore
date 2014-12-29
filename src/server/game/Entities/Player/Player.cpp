@@ -2490,8 +2490,8 @@ void Player::RemoveFromWorld()
             SetViewpoint(viewpoint, false);
         }
     }
-	// TODO: FIXME
-	if (sIRC->ajoin == 1)
+    // TODO: FIXME
+    if (sIRC->ajoin == 1)
     {
         QueryResult result = WorldDatabase.PQuery("SELECT `name` FROM `irc_inchan` WHERE `name` = '%s'", Unit::GetName().c_str());
         if (!result)
@@ -3090,7 +3090,7 @@ void Player::GiveLevel(uint8 level)
     InitTaxiNodesForLevel();
     InitGlyphsForLevel();
 
-	if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
+    if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
     {
         char  temp [5];
         sprintf(temp, "%u", level);
