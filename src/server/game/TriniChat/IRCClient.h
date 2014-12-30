@@ -116,7 +116,7 @@ public:
     // This function is called in ChatHandler.cpp and processes the chat from game to IRC
     void Send_WoW_IRC(Player *plr, std::string Channel, std::string Msg);
     // Sends a message to all players on the specified channel
-    void Send_WoW_Channel(const char *channel, std::string chat);
+    void Send_WoW_Channel(const char *channel, std::string chat, uint32 team = 0);
     // Send a system message to all players
     void Send_WoW_System(std::string Message);
     // Send a message to the specified IRC channel

@@ -301,16 +301,19 @@ void IRCClient::Handle_IRC(std::string sData)
                                 newMsg += szUser;
                                 szUser = newMsg;
                             }
+                            uint32 toTeam = 0;
                             std::string fixStaffChan = "#"+sIRC->_staffChan;
                             if(FROM[FROM.length()-9] == '-')
                             {
                                 uint32 removeAlliance = FROM.length()-9;
                                 FROM.erase(removeAlliance, FROM.length()-removeAlliance);
+                                toTeam = ALLIANCE;
                             }
                             else if(FROM[FROM.length()-6] == '-')
                             {
                                 uint32 removeHorde = FROM.length()-6;
                                 FROM.erase(removeHorde, FROM.length()-removeHorde);
+                                toTeam = HORDE;
                             }
                             bool ignored = false;
                             switch(sIRC->_staffLink)
@@ -344,12 +347,12 @@ void IRCClient::Handle_IRC(std::string sData)
                                         }
                                         if(!ignored)
                                         {
-                                            Send_WoW_Channel(GetWoWChannel(FROM).c_str(), IRCcol2WoW(MakeMsg(MakeMsg(GetChatLine(IRC_WOW), "$Name", szUser), "$Msg", CHAT)));
+                                            Send_WoW_Channel(GetWoWChannel(FROM).c_str(), IRCcol2WoW(MakeMsg(MakeMsg(GetChatLine(IRC_WOW), "$Name", szUser), "$Msg", CHAT)), toTeam);
                                         }
                                     }
                                     break;
                                 case 0:
-                                    Send_WoW_Channel(GetWoWChannel(FROM).c_str(), IRCcol2WoW(MakeMsg(MakeMsg(GetChatLine(IRC_WOW), "$Name", szUser), "$Msg", CHAT)));
+                                    Send_WoW_Channel(GetWoWChannel(FROM).c_str(), IRCcol2WoW(MakeMsg(MakeMsg(GetChatLine(IRC_WOW), "$Name", szUser), "$Msg", CHAT)), toTeam);
                                     break;
                             }
                         }
@@ -517,7 +520,7 @@ void IRCClient::Send_WoW_Player(Player *plr, string sMsg)
 // on the given channel ingame. (previuosly found in world.cpp)
 // it loops thru all sessions and checks if they are on the channel
 // if so construct a packet and send it.
-void IRCClient::Send_WoW_Channel(const char *channel, std::string chat)
+void IRCClient::Send_WoW_Channel(const char *channel, std::string chat, uint32 team)
 {
     if (!(strlen(channel) > 0))
         return;
@@ -531,7 +534,7 @@ void IRCClient::Send_WoW_Channel(const char *channel, std::string chat)
     HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
-        if (itr->second && itr->second->GetSession()->GetPlayer() && itr->second->GetSession()->GetPlayer()->IsInWorld())
+        if (itr->second && itr->second->GetSession()->GetPlayer() && itr->second->GetSession()->GetPlayer()->IsInWorld() && itr->second->GetSession()->GetPlayer()->GetTeam() == team)
         {
             if (ChannelMgr* cMgr = ChannelMgr::forTeam(itr->second->GetSession()->GetPlayer()->GetTeam()))
             {
