@@ -32,7 +32,6 @@ IRCClient::~IRCClient()
 {
     TC_LOG_ERROR("misc", "****** TriniChat Shutting Down ********");
     // delete if not running
-    Disconnect();
     delete thread;
 }
 

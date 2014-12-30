@@ -218,10 +218,9 @@ extern int main(int argc, char** argv)
     }
 
     // Start up TriniChat
-    boost::thread* triniChatThread = nullptr;
     if (sIRC->Active == 1)
     {
-        triniChatThread = new boost::thread(TrinityChatThread);
+        new boost::thread(TrinityChatThread);
     }
     else
         TC_LOG_ERROR("misc", "*** TriniChat Is Disabled. *");
