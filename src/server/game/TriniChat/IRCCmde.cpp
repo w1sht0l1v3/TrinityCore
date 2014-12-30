@@ -68,7 +68,7 @@ void IRCCmd::Handle_Login(_CDATA *CD)
                     NewClient->UName    = MakeUpper(_PARAMS[0]);
                     NewClient->GMChat   = false;
 
-                    QueryResult result1 = LoginDatabase.PQuery("SELECT `gmlevel` FROM `account_access` WHERE `id`=%i;",fields[0].GetUInt8());
+                    QueryResult result1 = LoginDatabase.PQuery("SELECT `gmlevel` FROM `account_access` WHERE `id`='%u';",fields[0].GetUInt32());
                     if(result1)
                     {
                         Field *fields1 = result1->Fetch();
