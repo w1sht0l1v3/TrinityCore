@@ -2792,6 +2792,14 @@ void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
 
         ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_TIME : SERVER_MSG_SHUTDOWN_TIME;
 
+        if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
+        {
+            std::string ircchan = "#";
+            std::string ShutdownMask = (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shutdown");
+            ircchan += sIRC->Status;
+            sIRC->Send_IRC_Channel(ircchan, "Server " + ShutdownMask + " in: " + str.c_str(), true);
+        }
+
         SendServerMessage(msgid, str.c_str(), player);
         TC_LOG_DEBUG("misc", "Server is %s in %s", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"), str.c_str());
     }
@@ -2805,6 +2813,14 @@ void World::ShutdownCancel()
         return;
 
     ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_CANCELLED : SERVER_MSG_SHUTDOWN_CANCELLED;
+    
+    if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
+    {
+        std::string ircchan = "#";
+        std::string ShutdownMask = (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shutdown");
+        ircchan += sIRC->Status;
+        sIRC->Send_IRC_Channel(ircchan, "Server " + ShutdownMask + " cancelled.", true);
+    }
 
     m_ShutdownMask = 0;
     m_ShutdownTimer = 0;

@@ -3462,7 +3462,7 @@ chat.change_nick = "<> $Name Is Now Known As $NewName!"
 # (8)Announce Security Level > 0 As GM At Login
 # (16)Announce GM In GM ON State AS GM At Login
 # (32)Return Errors To Notice. (If disabled then default is Private Message)
-# (64)Display WoW Status Messages (Levels/Deaths)
+# (64)Display WoW Status Messages (restart/shutdown)
 # (128)Display Nick Changes From IRC In WOW
 # (256)Display WoW Announces/Notifies In IRC
 # (512)Do Not Let Players Use Commands On Higher GM Level Players

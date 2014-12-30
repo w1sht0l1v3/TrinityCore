@@ -279,16 +279,6 @@ extern int main(int argc, char** argv)
         delete soapThread;
     }
 
-    // Clean TrinityChat
-    if (triniChatThread != nullptr)
-    {
-        // for some reason on win32 "sIRC->Active && !World::IsStopped()" fail to go false in time and the thread is stalled
-        // so we make sure the condition to live will fail from here, since we are shutting down...
-        sIRC->Active = 0;
-        triniChatThread->join();
-        delete triniChatThread;
-    }
-
     delete raAcceptor;
 
     ///- Clean database before leaving

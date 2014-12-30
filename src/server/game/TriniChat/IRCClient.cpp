@@ -100,7 +100,7 @@ bool IRCClient::run()
                     while (sIRC->Connected && !World::IsStopped())
                     {
                         sIRC->SockRecv();
-                        if(World::IsStopped())
+                        if (World::IsStopped())
                             Disconnect();
                     }
                 }

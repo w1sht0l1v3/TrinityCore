@@ -1797,8 +1797,6 @@ void IRCCmd::Restart_Trinity(_CDATA *CD)
     {
         Send_IRCA(ChanOrPM(CD), "\00313["+CD->USER+"] : Has Requested Server To Restart In "+_PARAMS[0]+" Seconds!", true, CD->TYPE);
         sWorld->ShutdownServ(i_time,SHUTDOWN_MASK_RESTART, RESTART_EXIT_CODE);
-        Delay(i_time*1000);
-        Send_IRCA(ChanOrPM(CD), "\0034Server Will Now Restart.. Be Back In A Flash!", true, CD->TYPE);
     }
 }
 
@@ -1861,8 +1859,6 @@ void IRCCmd::Shutdown_Trinity(_CDATA *CD)
     {
         Send_IRCA(ChanOrPM(CD), "\00313["+CD->USER+"] : Has Requested Server To Be Shut Down In "+_PARAMS[0]+" Seconds!", true, CD->TYPE);
         sWorld->ShutdownServ(i_time, SHUTDOWN_MASK_IDLE , SHUTDOWN_EXIT_CODE);
-        Delay(i_time*1000);
-        Send_IRCA(ChanOrPM(CD), "\0034Server Will Now Shut Down.. Good Bye!", true, CD->TYPE);
     }
 }
 
