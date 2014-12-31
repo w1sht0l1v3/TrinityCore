@@ -356,6 +356,18 @@ void IRCClient::Handle_IRC(std::string sData)
                                     break;
                             }
                         }
+                        else
+                        {
+                            // warn only in case of chat channels, not staff or system ones.
+                            // TODO: find a better way for this
+                            std::string fixStaffChan = "#" + sIRC->_staffChan;
+                            std::string statusChan = "#" + sIRC->Status;
+                            std::string announceChan = "#" + sIRC->anchn;
+                            std::string ticketChan = "#" + sIRC->ticann;
+                            std::string logChan = "#" + sIRC->logchan;
+                            if (FROM != fixStaffChan && FROM != statusChan && FROM != announceChan && FROM != ticketChan && FROM != logChan)
+                                sIRC->Send_IRC_Channel(szUser.c_str(), "You are not logged in.Your message won't be sent to the ingame channel until you login.", true, "NOTICE");
+                        }
                     }
                     // if we indeed receieved a command we do not want to display this to the players
                     // so only incanse the isvalid command returns false it will be sent to all player.
