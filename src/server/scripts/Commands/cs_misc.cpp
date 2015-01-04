@@ -1978,7 +1978,7 @@ public:
             std::string author = handler->GetSession() ? handler->GetSession()->GetPlayerName() : "Server";
             std::string ircchan = "#" + sIRC->Status;
             std::stringstream data;
-            data << "Player " << targetName << "unmuted by " << author;
+            data << "Player " << targetName << " unmuted by " << author;
             sIRC->Send_IRC_Channel(ircchan, data.str(), true);
         }
 
