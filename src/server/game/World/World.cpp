@@ -2780,7 +2780,8 @@ void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
 
     ///- Display a message every 12 hours, hours, 5 minutes, minute, 5 seconds and finally seconds
     if (show ||
-        (m_ShutdownTimer < 5* MINUTE && (m_ShutdownTimer % 15) == 0) || // < 5 min; every 15 sec
+        (m_ShutdownTimer < 5 && (m_ShutdownTimer % 1) == 0) || // < 5 sec; every 1 sec
+        (m_ShutdownTimer < 1* MINUTE && (m_ShutdownTimer % 15) == 0) || // < 1 min; every 15 sec
         (m_ShutdownTimer < 15 * MINUTE && (m_ShutdownTimer % MINUTE) == 0) || // < 15 min ; every 1 min
         (m_ShutdownTimer < 30 * MINUTE && (m_ShutdownTimer % (5 * MINUTE)) == 0) || // < 30 min ; every 5 min
         (m_ShutdownTimer < 12 * HOUR && (m_ShutdownTimer % HOUR) == 0) || // < 12 h ; every 1 h
@@ -2792,7 +2793,7 @@ void World::ShutdownMsg(bool show, Player* player, const std::string& reason)
 
         ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_TIME : SERVER_MSG_SHUTDOWN_TIME;
 
-        if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
+        if (!show && (sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
         {
             std::string ircchan = "#";
             std::string ShutdownMask = (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shutdown");
