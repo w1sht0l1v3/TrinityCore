@@ -1910,6 +1910,15 @@ public:
         LoginDatabase.Execute(stmt);
         std::string nameLink = handler->playerLink(targetName);
 
+        //TCC announcing
+        if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
+        {
+            std::string ircchan = "#" + sIRC->Status;
+            std::stringstream data;
+            data << "Player " << targetName << " (account: " << accountId << ") muted " << notSpeakTime << "m by " << muteBy << ", reason: " << muteReasonStr;
+            sIRC->Send_IRC_Channel(ircchan, data.str(), true);
+        }
+
         if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD) && !target)
             sWorld->SendWorldText(LANG_COMMAND_MUTEMESSAGE_WORLD, muteBy.c_str(), nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
         else
@@ -1963,6 +1972,15 @@ public:
         std::string nameLink = handler->playerLink(targetName);
 
         handler->PSendSysMessage(LANG_YOU_ENABLE_CHAT, nameLink.c_str());
+        //TCC announcing
+        if ((sIRC->BOTMASK & 64) != 0 && sIRC->Status.size() > 0)
+        {
+            std::string author = handler->GetSession() ? handler->GetSession()->GetPlayerName() : "Server";
+            std::string ircchan = "#" + sIRC->Status;
+            std::stringstream data;
+            data << "Player " << targetName << "unmuted by " << author;
+            sIRC->Send_IRC_Channel(ircchan, data.str(), true);
+        }
 
         return true;
     }
