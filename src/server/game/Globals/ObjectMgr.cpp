@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -3893,6 +3893,8 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
     }
 }
 
+int32 const ReputationMgr::Reputation_Cap;
+
 void ObjectMgr::LoadQuests()
 {
     uint32 oldMSTime = getMSTime();
@@ -7078,6 +7080,7 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
             continue;
         }
 
+        bool invalidSpilloverFaction = false;
         for (uint32 i = 0; i < MAX_SPILLOVER_FACTIONS; ++i)
         {
             if (repTemplate.faction[i])
@@ -7087,47 +7090,28 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
                 if (!factionSpillover)
                 {
                     TC_LOG_ERROR("sql.sql", "Spillover faction (faction.dbc) %u does not exist but is used in `reputation_spillover_template` for faction %u, skipping", repTemplate.faction[i], factionId);
-                    continue;
+                    invalidSpilloverFaction = true;
+                    break;
                 }
 
                 if (factionSpillover->reputationListID < 0)
                 {
                     TC_LOG_ERROR("sql.sql", "Spillover faction (faction.dbc) %u for faction %u in `reputation_spillover_template` can not be listed for client, and then useless, skipping", repTemplate.faction[i], factionId);
-                    continue;
+                    invalidSpilloverFaction = true;
+                    break;
                 }
 
                 if (repTemplate.faction_rank[i] >= MAX_REPUTATION_RANK)
                 {
                     TC_LOG_ERROR("sql.sql", "Rank %u used in `reputation_spillover_template` for spillover faction %u is not valid, skipping", repTemplate.faction_rank[i], repTemplate.faction[i]);
-                    continue;
+                    invalidSpilloverFaction = true;
+                    break;
                 }
             }
         }
 
-        FactionEntry const* factionEntry0 = sFactionStore.LookupEntry(repTemplate.faction[0]);
-        if (repTemplate.faction[0] && !factionEntry0)
-        {
-            TC_LOG_ERROR("sql.sql", "Faction (faction.dbc) %u does not exist but is used in `reputation_spillover_template`", repTemplate.faction[0]);
+        if (invalidSpilloverFaction)
             continue;
-        }
-        FactionEntry const* factionEntry1 = sFactionStore.LookupEntry(repTemplate.faction[1]);
-        if (repTemplate.faction[1] && !factionEntry1)
-        {
-            TC_LOG_ERROR("sql.sql", "Faction (faction.dbc) %u does not exist but is used in `reputation_spillover_template`", repTemplate.faction[1]);
-            continue;
-        }
-        FactionEntry const* factionEntry2 = sFactionStore.LookupEntry(repTemplate.faction[2]);
-        if (repTemplate.faction[2] && !factionEntry2)
-        {
-            TC_LOG_ERROR("sql.sql", "Faction (faction.dbc) %u does not exist but is used in `reputation_spillover_template`", repTemplate.faction[2]);
-            continue;
-        }
-        FactionEntry const* factionEntry3 = sFactionStore.LookupEntry(repTemplate.faction[3]);
-        if (repTemplate.faction[3] && !factionEntry3)
-        {
-            TC_LOG_ERROR("sql.sql", "Faction (faction.dbc) %u does not exist but is used in `reputation_spillover_template`", repTemplate.faction[3]);
-            continue;
-        }
 
         _repSpilloverTemplateStore[factionId] = repTemplate;
 
@@ -8619,7 +8603,6 @@ void ObjectMgr::LoadBroadcastTexts()
     }
 
     _broadcastTextStore.rehash(result->GetRowCount());
-    uint32 count = 0;
 
     do
     {
@@ -8645,26 +8628,23 @@ void ObjectMgr::LoadBroadcastTexts()
         {
             if (!sSoundEntriesStore.LookupEntry(bct.SoundId))
             {
-                TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has SoundId %u but sound does not exist. Skipped.", bct.Id, bct.SoundId);
-                // don't load bct of higher expansions
-                continue;
+                TC_LOG_DEBUG("broadcasttext", "BroadcastText (Id: %u) in table `broadcast_text` has SoundId %u but sound does not exist.", bct.Id, bct.SoundId);
+                bct.SoundId = 0;
             }
         }
 
         if (!GetLanguageDescByID(bct.Language))
         {
-            TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` using Language %u but Language does not exist. Skipped.", bct.Id, bct.Language);
-            // don't load bct of higher expansions
-            continue;
+            TC_LOG_DEBUG("broadcasttext", "BroadcastText (Id: %u) in table `broadcast_text` using Language %u but Language does not exist.", bct.Id, bct.Language);
+            bct.Language = LANG_UNIVERSAL;
         }
 
         if (bct.EmoteId0)
         {
             if (!sEmotesStore.LookupEntry(bct.EmoteId0))
             {
-                TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId0 %u but emote does not exist. Skipped.", bct.Id, bct.EmoteId0);
-                // don't load bct of higher expansions
-                continue;
+                TC_LOG_DEBUG("broadcasttext", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId0 %u but emote does not exist.", bct.Id, bct.EmoteId0);
+                bct.EmoteId0 = 0;
             }
         }
 
@@ -8672,9 +8652,8 @@ void ObjectMgr::LoadBroadcastTexts()
         {
             if (!sEmotesStore.LookupEntry(bct.EmoteId1))
             {
-                TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId1 %u but emote does not exist. Skipped.", bct.Id, bct.EmoteId1);
-                // don't load bct of higher expansions
-                continue;
+                TC_LOG_DEBUG("broadcasttext", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId1 %u but emote does not exist.", bct.Id, bct.EmoteId1);
+                bct.EmoteId1 = 0;
             }
         }
 
@@ -8682,19 +8661,16 @@ void ObjectMgr::LoadBroadcastTexts()
         {
             if (!sEmotesStore.LookupEntry(bct.EmoteId2))
             {
-                TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId2 %u but emote does not exist. Skipped.", bct.Id, bct.EmoteId2);
-                // don't load bct of higher expansions
-                continue;
+                TC_LOG_DEBUG("broadcasttext", "BroadcastText (Id: %u) in table `broadcast_text` has EmoteId2 %u but emote does not exist.", bct.Id, bct.EmoteId2);
+                bct.EmoteId2 = 0;
             }
         }
 
         _broadcastTextStore[bct.Id] = bct;
-
-        ++count;
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u broadcast texts in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO("server.loading", ">> Loaded " SZFMTD " broadcast texts in %u ms", _broadcastTextStore.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadBroadcastTextLocales()
@@ -8720,8 +8696,7 @@ void ObjectMgr::LoadBroadcastTextLocales()
         BroadcastTextContainer::iterator bct = _broadcastTextStore.find(id);
         if (bct == _broadcastTextStore.end())
         {
-            TC_LOG_INFO("sql.sql", "BroadcastText (Id: %u) in table `locales_broadcast_text` does not exist or is incompatible. Skipped!", id);
-            // don't load bct of higher expansions
+            TC_LOG_ERROR("sql.sql", "BroadcastText (Id: %u) in table `locales_broadcast_text` does not exist. Skipped!", id);
             continue;
         }
 

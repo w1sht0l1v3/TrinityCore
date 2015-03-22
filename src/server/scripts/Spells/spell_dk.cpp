@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1067,7 +1067,7 @@ class spell_dk_pestilence : public SpellScriptLoader
                                 {
                                     aurEffNew->SetCritChance(critChance); // Blood Plague can crit if caster has T9.
                                     aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetDamage(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), std::max(aurEffNew->GetAmount(), 0), DOT) * donePct);
+                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT));
                                 }
                             }
                         }
@@ -1086,7 +1086,7 @@ class spell_dk_pestilence : public SpellScriptLoader
                                 if (AuraEffect* aurEffNew = aurNew->GetEffect(EFFECT_0))
                                 {
                                     aurEffNew->SetDonePct(donePct);
-                                    aurEffNew->SetDamage(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), std::max(aurEffNew->GetAmount(), 0), DOT) * donePct);
+                                    aurEffNew->SetBonusAmount(caster->SpellDamageBonusDone(hitUnit, aurEffNew->GetSpellInfo(), 0, DOT));
                                 }
                             }
                         }
